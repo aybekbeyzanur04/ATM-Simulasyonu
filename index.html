@@ -1,4 +1,159 @@
 <!DOCTYPE html>
-<html>
-Merhaba
-</hmtl>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Basit ATM Simülasyonu</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .container {
+      background: white;
+      padding: 25px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+    label, select, input, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    select, input {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #bakiyeBilgi {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+      color: #444;
+    }
+    #mesaj {
+      margin-top: 10px;
+      text-align: center;
+      font-weight: 600;
+    }
+    #mesaj.success {
+      color: green;
+    }
+    #mesaj.error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Basit ATM Simülasyonu</h2>
+
+    <label for="hesap">Hesap Seçiniz:</label>
+    <select id="hesap" onchange="guncelleBakiye()">
+      <option value="1">Hesap 1</option>
+      <option value="2">Hesap 2</option>
+      <option value="3">Hesap 3</option>
+    </select>
+
+    <label for="islem">İşlem Seçiniz:</label>
+    <select id="islem">
+      <option value="yatir">Para Yatır</option>
+      <option value="cek">Para Çek</option>
+    </select>
+
+    <label for="miktar">Miktar (TL):</label>
+    <input type="number" id="miktar" min="1" placeholder="Miktar girin" />
+
+    <button onclick="islemYap()">İşlemi Gerçekleştir</button>
+
+    <div id="bakiyeBilgi"></div>
+    <div id="mesaj"></div>
+  </div>
+
+  <script>
+    // 3 hesap için başlangıç bakiyeleri
+    const hesaplar = {
+      1: 1000,
+      2: 2000,
+      3: 1500
+    };
+
+    // Sayfa yüklendiğinde bakiye göster
+    window.onload = function() {
+      guncelleBakiye();
+    };
+
+    function guncelleBakiye() {
+      const secilenHesap = document.getElementById('hesap').value;
+      const bakiyeBilgi = document.getElementById('bakiyeBilgi');
+      bakiyeBilgi.textContent = `Hesap ${secilenHesap} bakiyesi: ₺${hesaplar[secilenHesap].toFixed(2)}`;
+      temizleMesaj();
+    }
+
+    function temizleMesaj() {
+      const mesajDiv = document.getElementById('mesaj');
+      mesajDiv.textContent = '';
+      mesajDiv.className = '';
+    }
+
+    function islemYap() {
+      const secilenHesap = document.getElementById('hesap').value;
+      const islem = document.getElementById('islem').value;
+      const miktarInput = document.getElementById('miktar');
+      const miktar = parseFloat(miktarInput.value);
+      const mesajDiv = document.getElementById('mesaj');
+
+      temizleMesaj();
+
+      if (isNaN(miktar) || miktar <= 0) {
+        mesajDiv.textContent = 'Lütfen geçerli bir miktar girin!';
+        mesajDiv.className = 'error';
+        return;
+      }
+
+      if (islem === 'cek') {
+        if (miktar > hesaplar[secilenHesap]) {
+          mesajDiv.textContent = 'Yetersiz bakiye!';
+          mesajDiv.className = 'error';
+          return;
+        }
+        hesaplar[secilenHesap] -= miktar;
+        mesajDiv.textContent = `Hesap ${secilenHesap} hesabından ₺${miktar.toFixed(2)} çekildi.`;
+        mesajDiv.className = 'success';
+      } else if (islem === 'yatir') {
+        hesaplar[secilenHesap] += miktar;
+        mesajDiv.textContent = `Hesap ${secilenHesap} hesabına ₺${miktar.toFixed(2)} yatırıldı.`;
+        mesajDiv.className = 'success';
+      }
+
+      guncelleBakiye();
+      miktarInput.value = '';
+    }
+  </script>
+</body>
+</html>
