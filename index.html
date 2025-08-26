@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Basit ATM Simülasyonu</title>
+  <title>Basit ATM Simülasyonu - İşlem Geçmişi</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -67,6 +67,30 @@
     #mesaj.error {
       color: red;
     }
+    #islemGecmisi {
+      margin-top: 30px;
+      max-height: 200px;
+      overflow-y: auto;
+      border-top: 2px solid #007bff;
+      padding-top: 10px;
+    }
+    #islemGecmisi h3 {
+      margin-bottom: 10px;
+      color: #007bff;
+      text-align: center;
+    }
+    #islemGecmisi ul {
+      list-style: none;
+      padding-left: 0;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    #islemGecmisi li {
+      border-bottom: 1px solid #ddd;
+      padding: 6px 8px;
+      font-size: 14px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -93,19 +117,29 @@
 
     <div id="bakiyeBilgi"></div>
     <div id="mesaj"></div>
+
+    <div id="islemGecmisi">
+      <h3>İşlem Geçmişi</h3>
+      <ul id="gecmisListesi">
+        <!-- İşlemler buraya eklenecek -->
+      </ul>
+    </div>
   </div>
 
   <script>
-    // 3 hesap için başlangıç bakiyeleri
     const hesaplar = {
       1: 1000,
       2: 2000,
       3: 1500
     };
 
-    // Sayfa yüklendiğinde bakiye göster
+    // İşlem geçmişi array'i
+    // Her eleman: {hesap, islemTipi, miktar, tarih}
+    const islemGecmisi = [];
+
     window.onload = function() {
       guncelleBakiye();
+      guncelleGecmisi();
     };
 
     function guncelleBakiye() {
@@ -119,6 +153,29 @@
       const mesajDiv = document.getElementById('mesaj');
       mesajDiv.textContent = '';
       mesajDiv.className = '';
+    }
+
+    function guncelleGecmisi() {
+      const gecmisListesi = document.getElementById('gecmisListesi');
+      gecmisListesi.innerHTML = '';
+
+      if(islemGecmisi.length === 0) {
+        gecmisListesi.innerHTML = '<li>Henüz işlem yapılmadı.</li>';
+        return;
+      }
+
+      // Son işlem en üstte olacak şekilde ters sırada göster
+      const tersGecmis = [...islemGecmisi].reverse();
+
+      tersGecmis.forEach(islem => {
+        const li = document.createElement('li');
+        const tarihStr = islem.tarih.toLocaleString('tr-TR', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        li.textContent = `[${tarihStr}] Hesap ${islem.hesap} - ${islem.islemTipi === 'yatir' ? 'Para Yatırıldı' : 'Para Çekildi'}: ₺${islem.miktar.toFixed(2)}`;
+        gecmisListesi.appendChild(li);
+      });
     }
 
     function islemYap() {
@@ -151,7 +208,16 @@
         mesajDiv.className = 'success';
       }
 
+      // İşlem geçmişine ekle
+      islemGecmisi.push({
+        hesap: secilenHesap,
+        islemTipi: islem,
+        miktar: miktar,
+        tarih: new Date()
+      });
+
       guncelleBakiye();
+      guncelleGecmisi();
       miktarInput.value = '';
     }
   </script>
